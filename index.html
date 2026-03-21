@@ -6,33 +6,48 @@
     <title>Azov Steel Tycoon</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
+        
+        /* Шапка Директора */
+        .user-header { display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(255,140,0,0.03); border-bottom: 1px solid #222; margin-bottom: 10px; }
+        #user-photo { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ff8c00; margin-right: 10px; display: none; object-fit: cover; }
+        #user-name { font-weight: bold; color: #ff8c00; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
         .main-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .score-box { border: 2px solid #ff8c00; border-radius: 20px; padding: 15px 40px; background: rgba(255,140,0,0.1); box-shadow: 0 0 20px rgba(255, 140, 0, 0.2); }
-        .score { font-size: 42px; font-weight: bold; color: #ff8c00; }
-        .click-area { font-size: 140px; cursor: pointer; transition: transform 0.05s; text-shadow: 0 0 30px rgba(255, 140, 0, 0.5); margin: 20px 0; }
+        
+        /* Прогресс-бар */
+        .rank-box { margin-bottom: 15px; }
+        .rank-name { color: #ff8c00; font-weight: bold; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .progress-container { width: 220px; height: 8px; background: #222; border-radius: 4px; overflow: hidden; margin: 0 auto; border: 1px solid #333; }
+        .progress-bar { height: 100%; background: #ff8c00; width: 0%; transition: width 0.4s; box-shadow: 0 0 10px #ff8c00; }
+
+        /* Счет */
+        .score-box { border: 2px solid #ff8c00; border-radius: 20px; padding: 15px 40px; background: rgba(255,140,0,0.1); margin-bottom: 20px; box-shadow: 0 0 25px rgba(255, 140, 0, 0.2); }
+        .score { font-size: 42px; font-weight: bold; color: #ff8c00; text-shadow: 0 0 15px #ff8c00; }
+        
+        /* Кнопка Клика */
+        .click-area { font-size: 130px; cursor: pointer; transition: transform 0.05s; text-shadow: 0 0 30px rgba(255, 140, 0, 0.3); margin: 20px 0; }
         .click-area:active { transform: scale(0.9); }
-        
-        /* Прогресс и ранги */
-        .rank-box { margin-bottom: 10px; }
-        .rank-name { color: #ff8c00; font-weight: bold; font-size: 18px; text-transform: uppercase; }
-        .progress-container { width: 200px; height: 8px; background: #333; border-radius: 4px; margin: 5px auto; overflow: hidden; }
-        .progress-bar { height: 100%; background: #ff8c00; width: 0%; transition: width 0.3s; }
 
-        .shop-btn { background: #ff8c00; color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 18px; margin: 20px; cursor: pointer; width: 80%; align-self: center; }
+        /* Статы и Кнопки */
+        #stats { color: #ff8c00; font-size: 14px; font-weight: bold; }
         
-        /* Золотой бонус */
-        #bonus-item { display: none; position: absolute; font-size: 50px; cursor: pointer; z-index: 5; animation: bounce 1s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .btn-box { padding: 20px; width: 100%; box-sizing: border-box; display: flex; gap: 10px; }
+        .btn { flex: 1; background: #ff8c00; color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .share-btn { background: #222; color: #ff8c00; border: 1px solid #ff8c00; }
 
-        #shop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10; overflow-y: auto; padding-bottom: 40px; }
-        .shop-item { background: #1a1a1a; border: 1px solid #333; margin: 10px 20px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .buy-btn { background: #ff8c00; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; color: #000; min-width: 80px; }
-        .close-shop { margin-top: 20px; color: #ff8c00; font-weight: bold; padding: 20px; cursor: pointer; }
+        /* Магазин */
+        #shop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; overflow-y: auto; padding-top: 50px; }
+        .shop-item { background: #111; border: 1px solid #333; margin: 10px 20px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #ff8c00; }
+        .buy-btn { background: #ff8c00; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; color: #000; }
+        .close-shop { margin-top: 30px; color: #ff8c00; font-weight: bold; font-size: 14px; padding: 20px; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
-    <div id="bonus-item" onclick="collectBonus()">💰</div>
+    <div class="user-header">
+        <img id="user-photo" src="" alt="">
+        <div id="user-name">СТАЛЬНОЙ МАГНАТ</div>
+    </div>
 
     <div class="main-screen">
         <div class="rank-box">
@@ -42,49 +57,45 @@
 
         <div class="score-box">
             <div class="score"><span id="score">0</span> т.</div>
-            <div style="font-size: 12px; color: #aaa;">СТАЛЬ В НАЛИЧИИ</div>
+            <div style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">СТАЛЬ В НАЛИЧИИ</div>
         </div>
 
         <div class="click-area" id="clickBtn">⚓</div>
-        <div id="stats" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Клик: +1 | Авто: 0/сек</div>
+        <div id="stats">Клик: +1 | Авто: 0/сек</div>
     </div>
 
-    <button class="shop-btn" onclick="openShop()">МАГАЗИН УЛУЧШЕНИЙ</button>
+    <div class="btn-box">
+        <button class="btn share-btn" onclick="shareResult()">Поделиться</button>
+        <button class="btn" onclick="openShop()">МАГАЗИН</button>
+    </div>
 
     <div id="shop-modal">
-        <h2 style="color: #ff8c00; margin-top: 40px;">ЗАВОДСКОЙ МАГАЗИН</h2>
-        
-        <div class="shop-item">
-            <div style="text-align: left;">
-                <div style="font-weight: bold;">Мощный молот</div>
-                <div style="font-size: 11px; color: #aaa;">+1 к клику</div>
-            </div>
-            <button class="buy-btn" id="btn-click" onclick="buyUpgrade('click')">50 т.</button>
-        </div>
-
-        <div class="shop-item">
-            <div style="text-align: left;">
-                <div style="font-weight: bold;">Авто-цех</div>
-                <div style="font-size: 11px; color: #aaa;">+1 т. в сек.</div>
-            </div>
-            <button class="buy-btn" id="btn-auto" onclick="buyUpgrade('auto')">200 т.</button>
-        </div>
-
-        <div class="shop-item">
-            <div style="text-align: left;">
-                <div style="font-weight: bold;">Мартеновская печь</div>
-                <div style="font-size: 11px; color: #aaa;">+10 т. в сек.</div>
-            </div>
-            <button class="buy-btn" id="btn-furnace" onclick="buyUpgrade('furnace')">2000 т.</button>
-        </div>
-
-        <div class="close-shop" onclick="closeShop()">ВЕРНУТЬСЯ К ДОБЫЧЕ</div>
+        <h2 style="color: #ff8c00; text-transform: uppercase; letter-spacing: 2px;">РАСШИРЕНИЕ ПРОИЗВОДСТВА</h2>
+        <div class="shop-item"><div><b>Молот V2</b><br><small>+1 к клику</small></div><button class="buy-btn" onclick="buyUpgrade('click')">50 т.</button></div>
+        <div class="shop-item"><div><b>Авто-цех V1</b><br><small>+1 т./сек</small></div><button class="buy-btn" onclick="buyUpgrade('auto')">200 т.</button></div>
+        <div class="shop-item"><div><b>Печь "Мартен"</b><br><small>+10 т./сек</small></div><button class="buy-btn" onclick="buyUpgrade('furnace')">2000 т.</button></div>
+        <div class="shop-item"><div><b>Порт</b><br><small>+50 т./сек</small></div><button class="buy-btn" onclick="buyUpgrade('port')">10000 т.</button></div>
+        <div class="close-shop" onclick="closeShop()">ВЕРНУТЬСЯ В ЦЕХ</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Загрузка данных пользователя (Более надежная)
+        try {
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                document.getElementById('user-name').innerText = (user.first_name || user.username).toUpperCase();
+                if (user.photo_url) {
+                    const img = document.getElementById('user-photo');
+                    img.src = user.photo_url;
+                    img.style.display = 'block';
+                }
+            }
+        } catch (e) { console.log("Telegram data error", e); }
+
+        // Экономика
         let score = parseFloat(localStorage.getItem('steel_score')) || 0;
         let clickPower = parseInt(localStorage.getItem('click_power')) || 1;
         let autoPower = parseInt(localStorage.getItem('auto_power')) || 0;
@@ -100,15 +111,11 @@
         function updateDisplay() {
             document.getElementById('score').innerText = Math.floor(score);
             document.getElementById('stats').innerText = `Клик: +${clickPower} | Авто: ${autoPower}/сек`;
-            
-            // Обновление ранга
             let currentRank = ranks.find(r => score < r.goal) || ranks[ranks.length-1];
             let prevGoal = ranks[ranks.indexOf(currentRank)-1]?.goal || 0;
             let prog = ((score - prevGoal) / (currentRank.goal - prevGoal)) * 100;
-            
             document.getElementById('rank').innerText = currentRank.name;
             document.getElementById('progressBar').style.width = Math.min(prog, 100) + "%";
-
             localStorage.setItem('steel_score', score);
             localStorage.setItem('click_power', clickPower);
             localStorage.setItem('auto_power', autoPower);
@@ -117,35 +124,12 @@
         document.getElementById('clickBtn').addEventListener('click', () => {
             score += clickPower;
             updateDisplay();
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            tg.HapticFeedback.impactOccurred('medium');
         });
 
-        setInterval(() => {
-            if (autoPower > 0) {
-                score += autoPower;
-                updateDisplay();
-            }
-        }, 1000);
+        setInterval(() => { if (autoPower > 0) { score += autoPower; updateDisplay(); } }, 1000);
 
-        // Золотой бонус
-        function spawnBonus() {
-            const bonus = document.getElementById('bonus-item');
-            bonus.style.left = Math.random() * 80 + 10 + "%";
-            bonus.style.top = Math.random() * 60 + 20 + "%";
-            bonus.style.display = 'block';
-            setTimeout(() => { bonus.style.display = 'none'; }, 4000);
-        }
-        setInterval(spawnBonus, Math.random() * 30000 + 30000);
-
-        function collectBonus() {
-            let reward = clickPower * 100;
-            score += reward;
-            document.getElementById('bonus-item').style.display = 'none';
-            tg.HapticFeedback.notificationOccurred('success');
-            alert("Бонус Азова! Получено " + reward + " тонн стали!");
-            updateDisplay();
-        }
-
+        // Фичи
         function openShop() { document.getElementById('shop-modal').style.display = 'block'; }
         function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
 
@@ -153,10 +137,16 @@
             if (type === 'click' && score >= 50) { score -= 50; clickPower += 1; }
             else if (type === 'auto' && score >= 200) { score -= 200; autoPower += 1; }
             else if (type === 'furnace' && score >= 2000) { score -= 2000; autoPower += 10; }
-            else { alert("Недостаточно стали!"); return; }
-            
+            else if (type === 'port' && score >= 10000) { score -= 10000; autoPower += 50; }
+            else { tg.HapticFeedback.notificationOccurred('error'); return; }
             tg.HapticFeedback.notificationOccurred('success');
             updateDisplay();
+        }
+
+        function shareResult() {
+            let r = document.getElementById('rank').innerText;
+            let t = `Я уже ${r} в Azov Steel Tycoon! Добыча: ${Math.floor(score)} т.стали. Обогонишь?`;
+            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/AzovCraftBot/azov_tycoon&text=${encodeURIComponent(t)}`);
         }
 
         updateDisplay();
