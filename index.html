@@ -6,22 +6,31 @@
     <title>Azov Steel Tycoon</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; user-select: none; }
+        body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
         .container { width: 100%; }
-        .score-box { background: rgba(255, 140, 0, 0.1); border: 1px solid #ff8c00; border-radius: 15px; display: inline-block; padding: 10px 30px; margin-bottom: 30px; box-shadow: 0 0 20px rgba(255, 140, 0, 0.2); }
-        .score { font-size: 36px; font-weight: bold; color: #ff8c00; text-shadow: 0 0 15px rgba(255, 140, 0, 0.7); }
-        .click-area { width: 250px; height: 250px; margin: 0 auto; background: url('https://img.icons8.com/external-flatart-icons-outline-flatarticons/256/external-anchor-nautical-flatart-icons-outline-flatarticons.png') no-repeat center; background-size: contain; cursor: pointer; filter: drop-shadow(0 0 15px #ff8c00); transition: transform 0.05s; }
-        .click-area:active { transform: scale(0.90); }
-        .status { margin-top: 25px; font-size: 14px; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; color: #ff8c00; }
+        .score-box { background: rgba(255, 140, 0, 0.1); border: 2px solid #ff8c00; border-radius: 20px; display: inline-block; padding: 15px 40px; margin-bottom: 40px; box-shadow: 0 0 25px rgba(255, 140, 0, 0.2); }
+        .score { font-size: 42px; font-weight: bold; color: #ff8c00; text-shadow: 0 0 20px rgba(255, 140, 0, 0.8); }
+        
+        /* Кнопка-якорь через SVG (встроенная графика) */
+        .click-area { width: 220px; height: 220px; margin: 0 auto; cursor: pointer; transition: transform 0.05s; filter: drop-shadow(0 0 15px #ff8c00); }
+        .click-area:active { transform: scale(0.92); }
+        
+        .status { margin-top: 30px; font-size: 16px; font-weight: bold; opacity: 0.8; text-transform: uppercase; letter-spacing: 3px; color: #ff8c00; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="score-box">
             <div class="score"><span id="score">0</span> т.</div>
-            <div style="font-size: 12px; color: #ccc;">СТАЛЬ ДОБЫТА</div>
+            <div style="font-size: 14px; color: #aaa; margin-top: 5px;">СТАЛЬ ДОБЫТА</div>
         </div>
-        <div class="click-area" id="clickBtn"></div>
+        
+        <div class="click-area" id="clickBtn">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2V5M12 5C10.3431 5 9 6.34315 9 8C9 9.65685 10.3431 11 12 11C13.6569 11 15 9.65685 15 8C15 6.34315 13.6569 5 12 5ZM12 11V22M12 22C7.58172 22 4 18.4183 4 14H6M12 22C16.4183 22 20 18.4183 20 14H18" stroke="#ff8c00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        
         <div class="status">АЗОВСКИЙ ЦЕХ №1</div>
     </div>
 
@@ -33,9 +42,7 @@
         let scoreElement = document.getElementById('score');
         scoreElement.innerText = score;
 
-        const clickBtn = document.getElementById('clickBtn');
-
-        clickBtn.addEventListener('click', () => {
+        document.getElementById('clickBtn').addEventListener('click', () => {
             score++;
             scoreElement.innerText = score;
             localStorage.setItem('steel_score', score);
