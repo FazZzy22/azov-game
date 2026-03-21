@@ -6,47 +6,107 @@
     <title>Azov Steel Tycoon</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .container { width: 100%; }
-        .score-box { border: 2px solid #ff8c00; border-radius: 20px; display: inline-block; padding: 15px 40px; margin-bottom: 40px; background: rgba(255,140,0,0.1); }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .main-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .score-box { border: 2px solid #ff8c00; border-radius: 20px; padding: 15px 40px; margin-bottom: 30px; background: rgba(255,140,0,0.1); box-shadow: 0 0 20px rgba(255, 140, 0, 0.2); }
         .score { font-size: 42px; font-weight: bold; color: #ff8c00; }
-        
-        /* Кнопка-якорь, которая точно отобразится везде */
-        .click-area { font-size: 150px; cursor: pointer; transition: transform 0.05s; display: block; margin: 0 auto; width: 200px; height: 200px; line-height: 200px; text-shadow: 0 0 30px rgba(255, 140, 0, 0.5); }
+        .click-area { font-size: 140px; cursor: pointer; transition: transform 0.05s; text-shadow: 0 0 30px rgba(255, 140, 0, 0.5); }
         .click-area:active { transform: scale(0.9); }
         
-        .status { margin-top: 30px; font-size: 16px; font-weight: bold; color: #ff8c00; letter-spacing: 2px; }
+        .shop-btn { background: #ff8c00; color: #000; border: none; padding: 15px 50px; border-radius: 12px; font-weight: bold; font-size: 18px; margin-bottom: 20px; cursor: pointer; }
+        
+        /* Окно магазина */
+        #shop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10; padding-top: 50px; }
+        .shop-item { background: #1a1a1a; border: 1px solid #333; margin: 10px 20px; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .shop-item.locked { opacity: 0.5; }
+        .buy-btn { background: #ff8c00; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+        .close-shop { margin-top: 30px; color: #ff8c00; text-decoration: underline; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="main-screen">
         <div class="score-box">
             <div class="score"><span id="score">0</span> т.</div>
-            <div style="font-size: 14px; color: #aaa;">СТАЛЬ ДОБЫТА</div>
+            <div style="font-size: 12px; color: #aaa;">СТАЛЬ В НАЛИЧИИ</div>
         </div>
-        
         <div class="click-area" id="clickBtn">⚓</div>
-        
-        <div class="status">АЗОВСКИЙ ЦЕХ №1</div>
+        <div style="margin-top: 20px; color: #ff8c00; font-weight: bold;" id="stats">Клик: +1 | Авто: 0/сек</div>
+    </div>
+
+    <button class="shop-btn" onclick="openShop()">МАГАЗИН</button>
+
+    <div id="shop-modal">
+        <h2 style="color: #ff8c00;">ЗАВОДСКОЙ МАГАЗИН</h2>
+        <div class="shop-item">
+            <div style="text-align: left;">
+                <div style="font-weight: bold;">Мощный молот</div>
+                <div style="font-size: 12px; color: #aaa;">+1 к клику</div>
+            </div>
+            <button class="buy-btn" onclick="buyUpgrade('click')">50 т.</button>
+        </div>
+        <div class="shop-item">
+            <div style="text-align: left;">
+                <div style="font-weight: bold;">Авто-цех</div>
+                <div style="font-size: 12px; color: #aaa;">+1 т. в сек.</div>
+            </div>
+            <button class="buy-btn" onclick="buyUpgrade('auto')">200 т.</button>
+        </div>
+        <div class="close-shop" onclick="closeShop()">ВЕРНУТЬСЯ В ЦЕХ</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        
-        let score = parseInt(localStorage.getItem('steel_score')) || 0;
-        let scoreElement = document.getElementById('score');
-        scoreElement.innerText = score;
 
-        document.getElementById('clickBtn').addEventListener('click', () => {
-            score++;
-            scoreElement.innerText = score;
+        // Сохранение/Загрузка
+        let score = parseInt(localStorage.getItem('steel_score')) || 0;
+        let clickPower = parseInt(localStorage.getItem('click_power')) || 1;
+        let autoPower = parseInt(localStorage.getItem('auto_power')) || 0;
+
+        function updateDisplay() {
+            document.getElementById('score').innerText = Math.floor(score);
+            document.getElementById('stats').innerText = `Клик: +${clickPower} | Авто: ${autoPower}/сек`;
             localStorage.setItem('steel_score', score);
-            
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
+            localStorage.setItem('click_power', clickPower);
+            localStorage.setItem('auto_power', autoPower);
+        }
+
+        // Клик
+        document.getElementById('clickBtn').addEventListener('click', () => {
+            score += clickPower;
+            updateDisplay();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         });
+
+        // Авто-добыча (каждую секунду)
+        setInterval(() => {
+            if (autoPower > 0) {
+                score += autoPower;
+                updateDisplay();
+            }
+        }, 1000);
+
+        // Магазин
+        function openShop() { document.getElementById('shop-modal').style.display = 'block'; }
+        function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+
+        function buyUpgrade(type) {
+            if (type === 'click' && score >= 50) {
+                score -= 50;
+                clickPower += 1;
+                tg.HapticFeedback.notificationOccurred('success');
+            } else if (type === 'auto' && score >= 200) {
+                score -= 200;
+                autoPower += 1;
+                tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
+                alert("Недостаточно стали!");
+            }
+            updateDisplay();
+        }
+
+        updateDisplay();
     </script>
 </body>
 </html>
