@@ -1,1 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Azov Steel Tycoon</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .container { width: 100%; }
+        .score-box { background: rgba(255, 140, 0, 0.1); border: 1px solid #ff8c00; border-radius: 15px; display: inline-block; padding: 10px 30px; margin-bottom: 30px; }
+        .score { font-size: 36px; font-weight: bold; color: #ff8c00; text-shadow: 0 0 15px rgba(255, 140, 0, 0.7); }
+        .click-area { width: 280px; height: 280px; margin: 0 auto; background: url('https://i.ibb.co/LzdYp0Z/logo.png') no-repeat center; background-size: contain; cursor: pointer; filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.3)); transition: transform 0.05s; }
+        .click-area:active { transform: scale(0.92); }
+        .status { margin-top: 20px; font-size: 14px; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="score-box">
+            <div class="score"><span id="score">0</span> т.</div>
+            <div style="font-size: 12px; color: #ccc;">ДОБЫТО СТАЛИ</div>
+        </div>
+        <div class="click-area" id="clickBtn"></div>
+        <div class="status">Азовский цех №1</div>
+    </div>
 
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Загружаем сохраненный прогресс
+        let score = parseInt(localStorage.getItem('steel_score')) || 0;
+        let scoreElement = document.getElementById('score');
+        scoreElement.innerText = score;
+
+        const clickBtn = document.getElementById('clickBtn');
+
+        clickBtn.addEventListener('click', () => {
+            score++;
+            scoreElement.innerText = score;
+            
+            // Сохраняем баланс
+            localStorage.setItem('steel_score', score);
+            
+            // Вибрация (Haptic)
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        });
+    </script>
+</body>
+</html>
