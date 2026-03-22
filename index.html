@@ -6,49 +6,94 @@
     <title>Azov Steel Tycoon</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
-        #particles-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .particle { position: absolute; background: rgba(255, 140, 0, 0.2); border-radius: 50%; animation: particleFall 5s linear infinite; }
-        @keyframes particleFall { 0% { transform: translateY(-10px); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }
+        :root { --main-orange: #ff8c00; --glow-orange: rgba(255, 140, 0, 0.6); }
+        
+        body { 
+            background: radial-gradient(circle at center, #1a0f00 0%, #000 100%);
+            color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; 
+            text-align: center; margin: 0; padding: 0; 
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+        }
 
-        .user-header { display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(255,140,0,0.03); border-bottom: 1px solid #222; margin-bottom: 10px; z-index: 10; position: relative; }
-        #user-photo { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ff8c00; margin-right: 10px; display: none; object-fit: cover; }
-        #user-name { font-weight: bold; color: #ff8c00; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        /* Анимированные частицы (искры) */
+        #particles-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .particle { position: absolute; background: var(--main-orange); border-radius: 50%; animation: particleFall 4s linear infinite; filter: blur(1px); }
+        @keyframes particleFall { 0% { transform: translateY(-10px) scale(1); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(100vh) scale(0.5); opacity: 0; } }
+
+        /* Стеклянная шапка */
+        .user-header { 
+            display: flex; align-items: center; justify-content: center; padding: 12px; 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.2); z-index: 10; 
+        }
+        #user-photo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--main-orange); margin-right: 12px; box-shadow: 0 0 10px var(--glow-orange); }
+        #user-name { font-weight: 800; color: var(--main-orange); font-size: 13px; letter-spacing: 1.5px; }
 
         .main-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5; }
-        .rank-box { margin-bottom: 15px; z-index: 10; }
-        .rank-name { color: #ff8c00; font-weight: bold; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
-        .progress-container { width: 220px; height: 8px; background: #222; border-radius: 4px; overflow: hidden; margin: 0 auto; border: 1px solid #333; position: relative; }
-        .progress-bar { height: 100%; background: #ff8c00; width: 0%; transition: width 0.5s ease-out; box-shadow: 0 0 15px #ff8c00; }
-
-        .score-box { border: 2px solid #ff8c00; border-radius: 20px; padding: 15px 40px; background: rgba(255,140,0,0.1); margin-bottom: 20px; box-shadow: 0 0 25px rgba(255, 140, 0, 0.2); }
-        .score { font-size: 42px; font-weight: bold; color: #ff8c00; text-shadow: 0 0 15px #ff8c00; }
         
-        .click-area { font-size: 130px; cursor: pointer; transition: transform 0.05s; margin: 20px 0; animation: anchorPulse 2s ease-in-out infinite; }
-        @keyframes anchorPulse { 0%, 100% { text-shadow: 0 0 10px rgba(255, 140, 0, 0.2); } 50% { text-shadow: 0 0 40px rgba(255, 140, 0, 0.6); } }
-        .click-area:active { transform: scale(0.9) rotate(5deg); animation: none; }
+        /* Ранг с неоновой полоской */
+        .rank-box { margin-bottom: 20px; }
+        .rank-name { color: var(--main-orange); font-weight: 900; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow-orange); }
+        .progress-container { width: 240px; height: 10px; background: rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; margin: 10px auto; border: 1px solid rgba(255,140,0,0.3); }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #ff4500, #ff8c00); width: 0%; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 20px var(--main-orange); }
 
-        .floating-text { position: absolute; color: #ff8c00; font-weight: bold; font-size: 24px; pointer-events: none; animation: floatAway 1.5s ease-out forwards; z-index: 15; }
-        @keyframes floatAway { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        /* Счет в стиле киберпанк */
+        .score-box { 
+            background: rgba(255, 140, 0, 0.05); border: 1px solid rgba(255, 140, 0, 0.3);
+            border-radius: 24px; padding: 20px 50px; backdrop-filter: blur(5px);
+            box-shadow: 0 0 40px rgba(255, 140, 0, 0.1);
+        }
+        .score { font-size: 48px; font-weight: 900; color: var(--main-orange); text-shadow: 0 0 20px var(--glow-orange); }
+        
+        /* ЯКОРЬ (Раскаленный металл) */
+        .click-area { 
+            font-size: 140px; cursor: pointer; transition: all 0.1s; 
+            margin: 30px 0; filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.2));
+            animation: breathe 3s ease-in-out infinite;
+        }
+        @keyframes breathe { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.2)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.5)); } }
+        .click-area:active { transform: scale(0.9) rotate(-5deg); filter: brightness(1.5) drop-shadow(0 0 50px var(--main-orange)); }
 
-        .btn-box { padding: 20px; width: 100%; box-sizing: border-box; display: flex; gap: 10px; z-index: 20; }
-        .btn { flex: 1; background: #ff8c00; color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
-        .share-btn { background: #222; color: #ff8c00; border: 1px solid #ff8c00; }
+        .floating-text { position: absolute; color: #fff; font-weight: 900; font-size: 28px; pointer-events: none; animation: floatUp 1s ease-out forwards; text-shadow: 0 0 15px var(--main-orange); }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-120px) scale(1.5); } }
 
-        /* Магазин V3 */
-        #shop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; overflow-y: auto; }
-        .multiplier-btn { background: #222; color: #ff8c00; border: 1px solid #ff8c00; padding: 10px 20px; border-radius: 10px; margin: 20px 0; font-weight: bold; cursor: pointer; }
-        .multiplier-btn.active { background: #ff8c00; color: #000; }
-        .shop-item { background: #111; border: 1px solid #333; margin: 10px 20px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #ff8c00; }
-        .shop-info { text-align: left; }
-        .buy-btn { background: #ff8c00; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; color: #000; min-width: 90px; }
-        .buy-btn:disabled { background: #333; color: #aaa; }
+        /* Кнопки */
+        .btn-box { padding: 25px; display: flex; gap: 12px; z-index: 20; }
+        .btn { 
+            flex: 1; background: linear-gradient(135deg, #ff8c00, #ff4500); color: #000; 
+            border: none; padding: 18px; border-radius: 16px; font-weight: 900; 
+            font-size: 15px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        }
+        .share-btn { background: rgba(255,255,255,0.05); color: var(--main-orange); border: 1px solid var(--main-orange); }
+
+        /* Магазин V4 (Дизайнерский) */
+        #shop-modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); z-index: 100; 
+        }
+        .multiplier-btn { 
+            background: rgba(255,255,255,0.05); color: var(--main-orange); border: 1px solid rgba(255,140,0,0.3); 
+            padding: 10px 25px; border-radius: 12px; font-weight: bold; margin: 20px 5px;
+        }
+        .multiplier-btn.active { background: var(--main-orange); color: #000; box-shadow: 0 0 20px var(--glow-orange); }
+        
+        .shop-item { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+            margin: 12px 20px; padding: 18px; border-radius: 18px; display: flex; 
+            justify-content: space-between; align-items: center; transition: 0.3s;
+        }
+        .shop-item:hover { background: rgba(255,140,0,0.05); border-color: var(--main-orange); }
+        .buy-btn { 
+            background: var(--main-orange); border: none; padding: 12px 18px; 
+            border-radius: 10px; font-weight: 900; color: #000; 
+        }
+        .buy-btn:disabled { background: #222; color: #555; }
     </style>
 </head>
 <body>
     <div id="particles-container"></div>
     <div class="user-header">
-        <img id="user-photo" src="" alt="">
+        <img id="user-photo" src="" alt="" style="display:none">
         <div id="user-name">СТАЛЬНОЙ МАГНАТ</div>
     </div>
 
@@ -59,35 +104,32 @@
         </div>
         <div class="score-box">
             <div class="score"><span id="score">0</span> т.</div>
-            <div style="font-size: 11px; color: #aaa;">СТАЛЬ В НАЛИЧИИ</div>
+            <div style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 700; letter-spacing: 2px;">AZOV STEEL RESERVES</div>
         </div>
         <div class="click-area" id="clickBtn">⚓</div>
-        <div id="stats" style="color:#ff8c00; font-weight:bold;">Клик: +1 | Авто: 0/сек</div>
+        <div id="stats" style="color:var(--main-orange); font-weight:800; letter-spacing: 1px;">КЛИК: +1 | АВТО: 0/СЕК</div>
     </div>
 
     <div class="btn-box">
-        <button class="btn share-btn" onclick="shareResult()">📢 Поделиться</button>
-        <button class="btn" onclick="openShop()">🏢 МАГАЗИН</button>
+        <button class="btn share-btn" onclick="shareResult()">📢</button>
+        <button class="btn" onclick="openShop()">🏢 ЗАВОДСКОЙ МАГАЗИН</button>
     </div>
 
     <div id="shop-modal">
-        <h2 style="color: #ff8c00; margin-top: 40px;">ЗАВОДСКОЙ МАГАЗИН</h2>
-        
-        <div style="display: flex; justify-content: center; gap: 10px;">
-            <button class="multiplier-btn active" id="m1" onclick="setMultiplier(1)">x1</button>
-            <button class="multiplier-btn" id="m10" onclick="setMultiplier(10)">x10</button>
+        <h2 style="color: var(--main-orange); margin-top: 50px; letter-spacing: 3px;">UPGRADES</h2>
+        <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+            <button class="multiplier-btn active" id="m1" onclick="setMultiplier(1)">X1</button>
+            <button class="multiplier-btn" id="m10" onclick="setMultiplier(10)">X10</button>
             <button class="multiplier-btn" id="mMax" onclick="setMultiplier('MAX')">MAX</button>
         </div>
-
-        <div id="shop-list">
-            </div>
-
-        <div style="padding: 30px; color: #ff8c00; font-weight: bold; cursor: pointer;" onclick="closeShop()">← ВЕРНУТЬСЯ В ЦЕХ</div>
+        <div id="shop-list"></div>
+        <div style="padding: 40px; color: var(--main-orange); font-weight: 900; cursor: pointer; text-decoration: underline;" onclick="closeShop()">CLOSE</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.headerColor = "#1a0f00";
 
         let score = parseFloat(localStorage.getItem('steel_score')) || 0;
         let clickPower = parseInt(localStorage.getItem('click_power')) || 1;
@@ -95,10 +137,10 @@
         let buyMultiplier = 1;
 
         const upgrades = [
-            { id: 'click', name: 'Молот V2', desc: '+1 к клику', price: 50, type: 'click' },
-            { id: 'auto', name: 'Авто-цех', desc: '+1 т./сек', price: 200, type: 'auto' },
-            { id: 'furnace', name: 'Печь "Мартен"', desc: '+10 т./сек', price: 2000, type: 'auto' },
-            { id: 'port', name: 'Порт Азова', desc: '+50 т./сек', price: 10000, type: 'auto' }
+            { id: 'click', name: 'МОЛОТ V2', price: 50 },
+            { id: 'auto', name: 'ЦЕХ АВТОМАТИКИ', price: 200 },
+            { id: 'furnace', name: 'МАРТЕНОВСКАЯ ПЕЧЬ', price: 2000 },
+            { id: 'port', name: 'МОРСКОЙ ПОРТ', price: 10000 }
         ];
 
         const ranks = [
@@ -110,8 +152,8 @@
         ];
 
         function updateDisplay() {
-            document.getElementById('score').innerText = Math.floor(score);
-            document.getElementById('stats').innerText = `Клик: +${clickPower} | Авто: ${autoPower}/сек`;
+            document.getElementById('score').innerText = Math.floor(score).toLocaleString();
+            document.getElementById('stats').innerText = `КЛИК: +${clickPower} | АВТО: ${autoPower}/СЕК`;
             
             let currentRankIndex = ranks.findIndex(r => score < r.goal);
             if (currentRankIndex === -1) currentRankIndex = ranks.length - 1;
@@ -131,9 +173,7 @@
         function setMultiplier(m) {
             buyMultiplier = m;
             document.querySelectorAll('.multiplier-btn').forEach(btn => btn.classList.remove('active'));
-            if (m === 1) document.getElementById('m1').classList.add('active');
-            if (m === 10) document.getElementById('m10').classList.add('active');
-            if (m === 'MAX') document.getElementById('mMax').classList.add('active');
+            document.getElementById('m' + (m === 'MAX' ? 'Max' : m)).classList.add('active');
             renderShop();
         }
 
@@ -141,19 +181,13 @@
             const list = document.getElementById('shop-list');
             list.innerHTML = '';
             upgrades.forEach(up => {
-                let count = buyMultiplier;
-                if (buyMultiplier === 'MAX') {
-                    count = Math.floor(score / up.price);
-                    if (count < 1) count = 1;
-                }
+                let count = buyMultiplier === 'MAX' ? Math.max(1, Math.floor(score / up.price)) : buyMultiplier;
                 let totalPrice = up.price * count;
-                let canBuy = score >= totalPrice;
-
                 list.innerHTML += `
                     <div class="shop-item">
-                        <div class="shop-info"><b>${up.name}</b> (x${count})<br><small>${up.desc}</small></div>
-                        <button class="buy-btn" ${canBuy ? '' : 'disabled'} onclick="buyUpgrade('${up.id}', ${count}, ${totalPrice})">
-                            ${totalPrice} т.
+                        <div style="text-align:left"><b>${up.name}</b><br><small style="color:#aaa">КУПИТЬ: ${count} ШТ.</small></div>
+                        <button class="buy-btn" ${score >= totalPrice ? '' : 'disabled'} onclick="buyUpgrade('${up.id}', ${count}, ${totalPrice})">
+                            ${totalPrice.toLocaleString()} Т.
                         </button>
                     </div>`;
             });
@@ -162,42 +196,34 @@
         function buyUpgrade(id, count, price) {
             if (score >= price) {
                 score -= price;
-                let up = upgrades.find(u => u.id === id);
                 if (id === 'click') clickPower += count;
-                else {
-                    let powerAdd = (id === 'auto' ? 1 : id === 'furnace' ? 10 : 50);
-                    autoPower += (powerAdd * count);
-                }
+                else autoPower += (id === 'auto' ? 1 : id === 'furnace' ? 10 : 50) * count;
                 tg.HapticFeedback.notificationOccurred('success');
                 updateDisplay();
             }
         }
 
-        // Клик и частицы
         document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
             score += clickPower;
-            const container = document.querySelector('.main-screen');
-            const floatingText = document.createElement('div');
-            floatingText.className = 'floating-text';
-            floatingText.innerText = `+${clickPower}`;
-            let x = e.touches[0].clientX - container.offsetLeft - 20;
-            let y = e.touches[0].clientY - container.offsetTop - 30;
-            floatingText.style.left = x + 'px';
-            floatingText.style.top = y + 'px';
-            container.appendChild(floatingText);
-            setTimeout(() => { floatingText.remove(); }, 1500);
+            const ft = document.createElement('div');
+            ft.className = 'floating-text';
+            ft.innerText = `+${clickPower}`;
+            ft.style.left = e.touches[0].clientX - 20 + 'px';
+            ft.style.top = e.touches[0].clientY - 40 + 'px';
+            document.body.appendChild(ft);
+            setTimeout(() => ft.remove(), 1000);
             updateDisplay();
-            tg.HapticFeedback.impactOccurred('medium');
+            tg.HapticFeedback.impactOccurred('heavy');
         });
 
         function createParticles() {
             const container = document.getElementById('particles-container');
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 15; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
-                p.style.width = Math.random() * 5 + 2 + 'px'; p.style.height = p.style.width;
+                p.style.width = Math.random() * 4 + 2 + 'px'; p.style.height = p.style.width;
                 p.style.left = Math.random() * 100 + 'vw';
-                p.style.animationDelay = Math.random() * 5 + 's';
+                p.style.animationDelay = Math.random() * 4 + 's';
                 container.appendChild(p);
             }
         }
@@ -205,10 +231,7 @@
         setInterval(() => { if (autoPower > 0) { score += autoPower; updateDisplay(); } }, 1000);
         function openShop() { document.getElementById('shop-modal').style.display = 'block'; renderShop(); }
         function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
-        createParticles();
-        updateDisplay();
-
-        // Данные юзера
+        
         try {
             const u = tg.initDataUnsafe?.user;
             if (u) {
@@ -216,6 +239,9 @@
                 if (u.photo_url) { const img = document.getElementById('user-photo'); img.src = u.photo_url; img.style.display = 'block'; }
             }
         } catch (e) {}
+
+        createParticles();
+        updateDisplay();
     </script>
 </body>
 </html>
