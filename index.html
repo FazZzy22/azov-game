@@ -3,249 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Steel Empire: Azov Forge</title>
+    <title>Steel Empire: Prestige Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-orange: #ff8c00; --energy-blue: #00f2ff; --bg-dark: #0a0a0a; }
+        :root { --main-orange: #ff8c00; --energy-blue: #00f2ff; --prestige-red: #ff3c3c; }
+        body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        body { 
-            background: var(--bg-dark); color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; 
-            margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
-            transition: background 0.8s ease;
-        }
-
-        /* Фоновые градиенты для разных уровней */
-        .bg-level-0 { background: radial-gradient(circle at center, #1a0f00 0%, #000 100%); }
-        .bg-level-1 { background: radial-gradient(circle at center, #2b1b00 0%, #0a0a0a 100%); }
-        .bg-level-2 { background: radial-gradient(circle at center, #3d2600 0%, #050505 100%); }
-        .bg-level-3 { background: radial-gradient(circle at center, #4d3100 0%, #000 100%); }
-
-        .header { 
-            padding: 15px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 140, 0, 0.2); text-align: center; z-index: 10;
-        }
-        #user-name { font-weight: 800; color: var(--main-orange); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+        .header { padding: 15px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 140, 0, 0.2); text-align: center; z-index: 10; }
+        #user-name { font-weight: 800; color: var(--main-orange); font-size: 11px; letter-spacing: 2px; }
 
         .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5; }
 
         /* Энергия */
         .energy-section { margin-bottom: 20px; text-align: center; }
-        .energy-info { font-size: 14px; font-weight: 900; color: var(--energy-blue); margin-bottom: 5px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+        .energy-info { font-size: 14px; font-weight: 900; color: var(--energy-blue); margin-bottom: 5px; }
         .energy-container { width: 200px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(0, 242, 255, 0.3); }
-        .energy-fill { height: 100%; background: var(--energy-blue); width: 100%; transition: width 0.3s ease; box-shadow: 0 0 15px var(--energy-blue); }
+        .energy-fill { height: 100%; background: var(--energy-blue); width: 100%; transition: width 0.3s ease; }
 
-        /* Ранг */
-        #rank { font-weight: 900; color: var(--main-orange); font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        /* Престиж инфо */
+        .prestige-info { font-size: 12px; color: var(--prestige-red); font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
+
+        #rank { font-weight: 900; color: var(--main-orange); font-size: 20px; text-transform: uppercase; }
         .rank-progress { width: 220px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 8px 0 25px; overflow: hidden; }
         .rank-fill { height: 100%; background: var(--main-orange); width: 0%; transition: width 0.5s; }
 
-        /* Счёт */
-        .score-card { 
-            background: rgba(255, 140, 0, 0.05); border: 1px solid rgba(255, 140, 0, 0.3);
-            border-radius: 24px; padding: 20px 50px; backdrop-filter: blur(5px); text-align: center;
-        }
+        .score-card { background: rgba(255, 140, 0, 0.05); border: 1px solid rgba(255, 140, 0, 0.3); border-radius: 24px; padding: 20px 50px; backdrop-filter: blur(5px); text-align: center; }
         .score-val { font-size: 48px; font-weight: 900; color: var(--main-orange); line-height: 1; }
-        .score-label { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 700; margin-top: 5px; letter-spacing: 2px; }
 
-        /* Кликабельный Якорь */
-        #clickBtn { 
-            font-size: 120px; cursor: pointer; user-select: none; margin: 30px 0;
-            transition: transform 0.05s; filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.2));
-            display: flex; align-items: center; justify-content: center;
+        #clickBtn { font-size: 120px; cursor: pointer; user-select: none; margin: 30px 0; transition: transform 0.05s; }
+        #clickBtn:active { transform: scale(0.92); }
+
+        /* Кнопка Перерождения */
+        #prestigeBtn { 
+            display: none; background: var(--prestige-red); color: #fff; border: none; 
+            padding: 10px 20px; border-radius: 20px; font-weight: 900; font-size: 12px; 
+            margin-bottom: 15px; animation: pulse 1.5s infinite; cursor: pointer;
         }
-        #clickBtn:active { transform: scale(0.92); filter: drop-shadow(0 0 40px var(--main-orange)); }
-        #clickBtn.low-energy { opacity: 0.4; filter: grayscale(1); }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 60, 60, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 60, 60, 0); } 100% { transform: scale(1); } }
 
-        .stats-text { font-size: 13px; font-weight: 800; color: var(--main-orange); letter-spacing: 1px; }
+        .footer { padding: 20px; display: flex; gap: 10px; }
+        .shop-trigger { flex: 1; background: var(--main-orange); color: #000; border: none; padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; }
 
-        /* Кнопка Магазина */
-        .footer { padding: 20px; z-index: 10; }
-        .shop-trigger { 
-            width: 100%; background: var(--main-orange); color: #000; border: none; 
-            padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; 
-            text-transform: uppercase; box-shadow: 0 5px 20px rgba(255, 140, 0, 0.3);
-        }
-
-        /* Модалка Магазина */
-        #shopModal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.98); z-index: 1000; overflow-y: auto; padding-top: 50px;
-        }
-        .shop-item { 
-            background: rgba(255,255,255,0.03); margin: 12px 20px; padding: 20px; 
-            border-radius: 20px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 4px solid var(--main-orange);
-        }
-        .buy-btn { background: var(--main-orange); border: none; padding: 12px 18px; border-radius: 12px; font-weight: 900; color: #000; }
-        .buy-btn:disabled { background: #333; color: #666; }
-
-        .floating-text { position: absolute; color: #fff; font-weight: 900; pointer-events: none; animation: floatUp 0.7s forwards; }
-        @keyframes floatUp { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-80px) scale(1.5); } }
+        #shopModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 1000; overflow-y: auto; padding-top: 50px; }
+        .shop-item { background: rgba(255,255,255,0.03); margin: 12px 20px; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--main-orange); }
+        .buy-btn { background: var(--main-orange); border: none; padding: 12px 18px; border-radius: 12px; font-weight: 900; }
     </style>
 </head>
-<body class="bg-level-0" id="mainBody">
+<body>
 
-    <div class="header">
-        <div id="user-name">ЗАГРУЗКА ДАННЫХ...</div>
-    </div>
+    <div class="header"><div id="user-name">LOADING...</div></div>
 
     <div class="main-content">
+        <div class="prestige-info" id="prestige-val">Чертежи: 0 (Бонус: +0%)</div>
+        
         <div class="energy-section">
             <div class="energy-info">⚡ <span id="e-val">1000</span> / 1000</div>
             <div class="energy-container"><div class="energy-fill" id="e-bar"></div></div>
         </div>
+
+        <button id="prestigeBtn" onclick="doPrestige()">☢️ ПЕРЕРОЖДЕНИЕ (+1 ЧЕРТЕЖ)</button>
 
         <div id="rank">РАЗНОРАБОЧИЙ</div>
         <div class="rank-progress"><div class="rank-fill" id="r-bar"></div></div>
 
         <div class="score-card">
             <div class="score-val" id="score">0</div>
-            <div class="score-label">TONS OF STEEL</div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 5px;">TONS OF STEEL</div>
         </div>
 
         <div id="clickBtn">⚓</div>
-
-        <div class="stats-text" id="stats">КЛИК: +1 | АВТО: 0/СЕК</div>
+        <div id="stats" style="color:var(--main-orange); font-weight:800; font-size:12px;"></div>
     </div>
 
     <div class="footer">
-        <button class="shop-trigger" onclick="toggleShop(true)">🏢 МАГАЗИН И УРОВНИ</button>
+        <button class="shop-trigger" onclick="toggleShop(true)">🏢 МАГАЗИН</button>
     </div>
 
     <div id="shopModal">
-        <h2 style="color: var(--main-orange); text-align: center;">ОТДЕЛ СНАБЖЕНИЯ</h2>
+        <h2 style="color: var(--main-orange); text-align: center;">УЛУЧШЕНИЯ</h2>
         <div id="shop-list"></div>
-        <div style="text-align: center; padding: 40px; color: var(--main-orange); font-weight: 900; cursor: pointer;" onclick="toggleShop(false)">← ВЕРНУТЬСЯ В ЦЕХ</div>
+        <div style="text-align: center; padding: 40px; color: var(--main-orange); font-weight: 900;" onclick="toggleShop(false)">← НАЗАД</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Состояние игры
         let score = parseFloat(localStorage.getItem('steel_score')) || 0;
-        let clickPower = parseInt(localStorage.getItem('click_power')) || 1;
-        let autoPower = parseInt(localStorage.getItem('auto_power')) || 0;
-        let energy = parseFloat(localStorage.getItem('steel_energy')) || 1000;
+        let blueprints = parseInt(localStorage.getItem('steel_blueprints')) || 0;
         let owned = JSON.parse(localStorage.getItem('steel_owned')) || { hammer: 0, line: 0, furnace: 0, port: 0 };
-        
-        const maxEnergy = 1000;
+        let energy = 1000;
+
         const upgrades = [
-            { id: 'hammer', name: 'ТЯЖЕЛЫЙ МОЛОТ', base: 50, pwr: 1 },
-            { id: 'line', name: 'КОНВЕЙЕР', base: 250, pwr: 1 },
-            { id: 'furnace', name: 'ПЕЧЬ МАРТЕН', base: 2000, pwr: 10 },
-            { id: 'port', name: 'ГРУЗОВОЙ ПОРТ', base: 12000, pwr: 60 }
+            { id: 'hammer', name: 'МОЛОТ', base: 50, pwr: 1, type: 'click' },
+            { id: 'line', name: 'ЛИНИЯ', base: 250, pwr: 1, type: 'auto' },
+            { id: 'furnace', name: 'ПЕЧЬ', base: 2000, pwr: 10, type: 'auto' },
+            { id: 'port', name: 'ПОРТ', base: 12000, pwr: 60, type: 'auto' }
         ];
 
-        function getPrice(id) {
-            let up = upgrades.find(u => u.id === id);
-            return Math.floor(up.base * Math.pow(1.18, owned[id]));
-        }
+        function getBoost() { return 1 + (blueprints * 0.25); }
 
         function updateUI() {
+            let boost = getBoost();
+            let clickPwr = (1 + upgrades.find(u => u.id === 'hammer').pwr * owned.hammer) * boost;
+            let autoPwr = (upgrades.filter(u => u.type === 'auto').reduce((acc, u) => acc + (u.pwr * owned[u.id]), 0)) * boost;
+
             document.getElementById('score').innerText = Math.floor(score).toLocaleString();
+            document.getElementById('prestige-val').innerText = `Чертежи: ${blueprints} (Бонус: +${blueprints * 25}%)`;
+            document.getElementById('stats').innerText = `КЛИК: +${Math.floor(clickPwr)} | АВТО: ${Math.floor(autoPwr)}/СЕК`;
             document.getElementById('e-val').innerText = Math.floor(energy);
-            document.getElementById('e-bar').style.width = (energy / maxEnergy * 100) + "%";
-            document.getElementById('stats').innerText = `КЛИК: +${clickPower} | АВТО: ${autoPower}/СЕК`;
+            document.getElementById('e-bar').style.width = (energy / 10) + "%";
 
-            // Логика рангов и фонов
+            // Логика рангов
             const ranks = [
-                { n: "РАЗНОРАБОЧИЙ", g: 1500, c: "bg-level-0" },
-                { n: "МАСТЕР ЦЕХА", g: 15000, c: "bg-level-1" },
-                { n: "УПРАВЛЯЮЩИЙ", g: 150000, c: "bg-level-2" },
-                { n: "ГЕНДИРЕКТОР", g: 1000000, c: "bg-level-3" },
-                { n: "СТАЛЬНОЙ МОНАРХ", g: Infinity, c: "bg-level-3" }
+                { n: "РАЗНОРАБОЧИЙ", g: 1000 },
+                { n: "МАСТЕР", g: 15000 },
+                { n: "УПРАВЛЯЮЩИЙ", g: 150000 },
+                { n: "ГЕНДИРЕКТОР", g: 1000000 }
             ];
-
             let rIdx = ranks.findIndex(r => score < r.g);
-            let currentRank = ranks[rIdx];
-            document.getElementById('rank').innerText = currentRank.n;
-            document.getElementById('mainBody').className = currentRank.c;
+            if(rIdx === -1) {
+                document.getElementById('rank').innerText = "СТАЛЬНОЙ МОНАРХ";
+                document.getElementById('prestigeBtn').style.display = 'block';
+            } else {
+                document.getElementById('rank').innerText = ranks[rIdx].n;
+                document.getElementById('prestigeBtn').style.display = 'none';
+                let prev = rIdx === 0 ? 0 : ranks[rIdx-1].g;
+                document.getElementById('r-bar').style.width = Math.min(((score - prev) / (ranks[rIdx].g - prev)) * 100, 100) + "%";
+            }
 
-            let prevGoal = rIdx === 0 ? 0 : ranks[rIdx-1].g;
-            let prog = ((score - prevGoal) / (currentRank.g - prevGoal)) * 100;
-            document.getElementById('r-bar').style.width = Math.min(prog, 100) + "%";
-
-            // Сохранение
             localStorage.setItem('steel_score', score);
-            localStorage.setItem('steel_energy', energy);
+            localStorage.setItem('steel_blueprints', blueprints);
             localStorage.setItem('steel_owned', JSON.stringify(owned));
-            localStorage.setItem('click_power', clickPower);
-            localStorage.setItem('auto_power', autoPower);
+        }
+
+        function doPrestige() {
+            tg.showConfirm("Вы уверены? Весь прогресс обнулится, но вы получите +1 Чертеж (+25% к доходу навсегда).", (ok) => {
+                if(ok) {
+                    blueprints++;
+                    score = 0;
+                    owned = { hammer: 0, line: 0, furnace: 0, port: 0 };
+                    tg.HapticFeedback.notificationOccurred('success');
+                    updateUI();
+                }
+            });
         }
 
         document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
-            if (energy >= 1) {
+            if(energy >= 1) {
+                let boost = getBoost();
+                let clickPwr = (1 + upgrades.find(u => u.id === 'hammer').pwr * owned.hammer) * boost;
+                score += clickPwr;
                 energy -= 1;
-                score += clickPower;
-                
-                // Эффект вылетающих цифр
-                const ft = document.createElement('div');
-                ft.className = 'floating-text';
-                ft.innerText = `+${clickPower}`;
-                ft.style.left = e.touches[0].clientX + 'px';
-                ft.style.top = e.touches[0].clientY + 'px';
-                document.body.appendChild(ft);
-                setTimeout(() => ft.remove(), 700);
-
-                tg.HapticFeedback.impactOccurred('medium');
                 updateUI();
-            } else {
-                tg.HapticFeedback.notificationOccurred('error');
+                tg.HapticFeedback.impactOccurred('medium');
             }
         });
 
-        function toggleShop(show) {
-            document.getElementById('shopModal').style.display = show ? 'block' : 'none';
-            if(show) renderShop();
-        }
+        function toggleShop(s) { document.getElementById('shopModal').style.display = s ? 'block' : 'none'; if(s) renderShop(); }
 
         function renderShop() {
             const container = document.getElementById('shop-list');
             container.innerHTML = '';
             upgrades.forEach(up => {
-                let price = getPrice(up.id);
+                let price = Math.floor(up.base * Math.pow(1.18, owned[up.id]));
                 container.innerHTML += `
                     <div class="shop-item">
-                        <div>
-                            <div style="font-weight:900">${up.name}</div>
-                            <div style="font-size:10px; color:rgba(255,255,255,0.5)">УРОВЕНЬ: ${owned[up.id]}</div>
-                        </div>
-                        <button class="buy-btn" ${score < price ? 'disabled' : ''} onclick="buy('${up.id}')">
-                            ${price.toLocaleString()} Т.
-                        </button>
-                    </div>
-                `;
+                        <div><b>${up.name}</b><br><small>Ур: ${owned[up.id]}</small></div>
+                        <button class="buy-btn" ${score < price ? 'disabled' : ''} onclick="buy('${up.id}', ${price})">${price.toLocaleString()} Т.</button>
+                    </div>`;
             });
         }
 
-        function buy(id) {
-            let price = getPrice(id);
-            if (score >= price) {
-                score -= price;
+        function buy(id, cost) {
+            if(score >= cost) {
+                score -= cost;
                 owned[id]++;
-                let up = upgrades.find(u => u.id === id);
-                if (id === 'hammer') clickPower += up.pwr;
-                else autoPower += up.pwr;
-                tg.HapticFeedback.notificationOccurred('success');
                 updateUI();
                 renderShop();
+                tg.HapticFeedback.notificationOccurred('success');
             }
         }
 
-        // Цикл регенерации и автодобычи
         setInterval(() => {
-            if (energy < maxEnergy) energy = Math.min(maxEnergy, energy + 1.5);
-            if (autoPower > 0) score += (autoPower / 10); // Плавная добыча раз в 100мс
+            if(energy < 1000) energy = Math.min(1000, energy + 2);
+            let autoPwr = (upgrades.filter(u => u.type === 'auto').reduce((acc, u) => acc + (u.pwr * owned[u.id]), 0)) * getBoost();
+            if(autoPwr > 0) score += (autoPwr / 10);
             updateUI();
         }, 100);
 
-        // Инициализация
         try {
             const user = tg.initDataUnsafe?.user;
             if (user) document.getElementById('user-name').innerText = (user.first_name || user.username).toUpperCase();
         } catch(e) {}
-        
         updateUI();
     </script>
 </body>
