@@ -3,245 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Azov Steel Tycoon</title>
+    <title>Azov Steel Tycoon: Overdrive</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-orange: #ff8c00; --glow-orange: rgba(255, 140, 0, 0.6); }
-        
+        :root { --main-orange: #ff8c00; --heat-blue: #00d4ff; }
         body { 
             background: radial-gradient(circle at center, #1a0f00 0%, #000 100%);
-            color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; 
-            text-align: center; margin: 0; padding: 0; 
-            display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+            color: #fff; font-family: 'Segoe UI', sans-serif; 
+            margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
         }
 
-        /* Анимированные частицы (искры) */
         #particles-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .particle { position: absolute; background: var(--main-orange); border-radius: 50%; animation: particleFall 4s linear infinite; filter: blur(1px); }
-        @keyframes particleFall { 0% { transform: translateY(-10px) scale(1); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(100vh) scale(0.5); opacity: 0; } }
+        .particle { position: absolute; background: var(--main-orange); border-radius: 50%; animation: particleFall 4s linear infinite; opacity: 0.3; }
+        @keyframes particleFall { 0% { transform: translateY(-10px); opacity: 0; } 100% { transform: translateY(100vh); opacity: 0; } }
 
-        /* Стеклянная шапка */
-        .user-header { 
-            display: flex; align-items: center; justify-content: center; padding: 12px; 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 140, 0, 0.2); z-index: 10; 
-        }
-        #user-photo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--main-orange); margin-right: 12px; box-shadow: 0 0 10px var(--glow-orange); }
-        #user-name { font-weight: 800; color: var(--main-orange); font-size: 13px; letter-spacing: 1.5px; }
+        /* Квест дня */
+        .quest-banner { background: rgba(255,140,0,0.1); border: 1px dashed var(--main-orange); margin: 10px; padding: 8px; border-radius: 10px; font-size: 11px; z-index: 10; }
+
+        .user-header { display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,140,0,0.2); z-index: 10; }
+        #user-photo { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--main-orange); margin-right: 10px; display:none; }
+        #user-name { font-weight: 800; color: var(--main-orange); font-size: 12px; letter-spacing: 1px; }
 
         .main-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5; }
         
-        /* Ранг с неоновой полоской */
-        .rank-box { margin-bottom: 20px; }
-        .rank-name { color: var(--main-orange); font-weight: 900; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow-orange); }
-        .progress-container { width: 240px; height: 10px; background: rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; margin: 10px auto; border: 1px solid rgba(255,140,0,0.3); }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #ff4500, #ff8c00); width: 0%; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 20px var(--main-orange); }
+        /* Ранг */
+        .rank-name { color: var(--main-orange); font-weight: 900; font-size: 18px; text-transform: uppercase; }
+        .progress-container { width: 200px; height: 6px; background: #222; border-radius: 10px; margin: 5px 0 20px; overflow: hidden; border: 1px solid #333; }
+        .progress-bar { height: 100%; background: var(--main-orange); width: 0%; transition: width 0.4s; box-shadow: 0 0 15px var(--main-orange); }
 
-        /* Счет в стиле киберпанк */
-        .score-box { 
-            background: rgba(255, 140, 0, 0.05); border: 1px solid rgba(255, 140, 0, 0.3);
-            border-radius: 24px; padding: 20px 50px; backdrop-filter: blur(5px);
-            box-shadow: 0 0 40px rgba(255, 140, 0, 0.1);
-        }
-        .score { font-size: 48px; font-weight: 900; color: var(--main-orange); text-shadow: 0 0 20px var(--glow-orange); }
-        
-        /* ЯКОРЬ (Раскаленный металл) */
-        .click-area { 
-            font-size: 140px; cursor: pointer; transition: all 0.1s; 
-            margin: 30px 0; filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.2));
-            animation: breathe 3s ease-in-out infinite;
-        }
-        @keyframes breathe { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.2)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.5)); } }
-        .click-area:active { transform: scale(0.9) rotate(-5deg); filter: brightness(1.5) drop-shadow(0 0 50px var(--main-orange)); }
+        .score-box { background: rgba(255,140,0,0.05); border: 1px solid rgba(255,140,0,0.2); border-radius: 20px; padding: 15px 40px; margin-bottom: 15px; }
+        .score { font-size: 44px; font-weight: 900; color: var(--main-orange); text-shadow: 0 0 20px rgba(255,140,0,0.3); }
 
-        .floating-text { position: absolute; color: #fff; font-weight: 900; font-size: 28px; pointer-events: none; animation: floatUp 1s ease-out forwards; text-shadow: 0 0 15px var(--main-orange); }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-120px) scale(1.5); } }
+        /* ЯКОРЬ и Перегрев */
+        .click-area { font-size: 130px; cursor: pointer; transition: 0.1s; margin: 15px 0; position: relative; }
+        .click-area.overdrive { filter: drop-shadow(0 0 40px var(--heat-blue)) hue-rotate(180deg); animation: shake 0.1s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
 
-        /* Кнопки */
-        .btn-box { padding: 25px; display: flex; gap: 12px; z-index: 20; }
-        .btn { 
-            flex: 1; background: linear-gradient(135deg, #ff8c00, #ff4500); color: #000; 
-            border: none; padding: 18px; border-radius: 16px; font-weight: 900; 
-            font-size: 15px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
-        }
-        .share-btn { background: rgba(255,255,255,0.05); color: var(--main-orange); border: 1px solid var(--main-orange); }
+        /* Кнопка Риска */
+        .gamble-btn { background: #ff4500; color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 12px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 0 15px rgba(255,69,0,0.4); }
 
-        /* Магазин V4 (Дизайнерский) */
-        #shop-modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); z-index: 100; 
-        }
-        .multiplier-btn { 
-            background: rgba(255,255,255,0.05); color: var(--main-orange); border: 1px solid rgba(255,140,0,0.3); 
-            padding: 10px 25px; border-radius: 12px; font-weight: bold; margin: 20px 5px;
-        }
-        .multiplier-btn.active { background: var(--main-orange); color: #000; box-shadow: 0 0 20px var(--glow-orange); }
-        
-        .shop-item { 
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            margin: 12px 20px; padding: 18px; border-radius: 18px; display: flex; 
-            justify-content: space-between; align-items: center; transition: 0.3s;
-        }
-        .shop-item:hover { background: rgba(255,140,0,0.05); border-color: var(--main-orange); }
-        .buy-btn { 
-            background: var(--main-orange); border: none; padding: 12px 18px; 
-            border-radius: 10px; font-weight: 900; color: #000; 
-        }
-        .buy-btn:disabled { background: #222; color: #555; }
+        .floating-text { position: absolute; font-weight: 900; pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100; }
+        @keyframes floatUp { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-100px) scale(1.5); } }
+
+        .btn-box { padding: 20px; display: flex; gap: 10px; z-index: 20; }
+        .btn { flex: 1; background: var(--main-orange); color: #000; border: none; padding: 15px; border-radius: 15px; font-weight: 900; text-transform: uppercase; }
+        .shop-btn { background: #fff; }
+
+        /* Магазин */
+        #shop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 1000; overflow-y: auto; padding-top: 40px; }
+        .multiplier-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .m-btn { background: #222; color: #ff8c00; border: 1px solid #444; padding: 8px 15px; border-radius: 10px; }
+        .m-btn.active { background: var(--main-orange); color: #000; }
+        .shop-item { background: #111; margin: 10px 20px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
     </style>
 </head>
 <body>
     <div id="particles-container"></div>
+    
+    <div class="quest-banner" id="quest">Квест: Добыть 100 т. сегодня (0/100)</div>
+
     <div class="user-header">
-        <img id="user-photo" src="" alt="" style="display:none">
-        <div id="user-name">СТАЛЬНОЙ МАГНАТ</div>
+        <img id="user-photo" src="" alt="">
+        <div id="user-name">ГЕНЕРАЛЬНЫЙ ДИРЕКТОР</div>
     </div>
 
     <div class="main-screen">
-        <div class="rank-box">
-            <div class="rank-name" id="rank">Разнорабочий</div>
-            <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
-        </div>
+        <div class="rank-name" id="rank">Разнорабочий</div>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+        <button class="gamble-btn" onclick="gamble()">🎲 РИСКНУТЬ (10%)</button>
+
         <div class="score-box">
-            <div class="score"><span id="score">0</span> т.</div>
-            <div style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 700; letter-spacing: 2px;">AZOV STEEL RESERVES</div>
+            <div class="score" id="score">0</div>
+            <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">ТОНН СТАЛИ</div>
         </div>
+
         <div class="click-area" id="clickBtn">⚓</div>
-        <div id="stats" style="color:var(--main-orange); font-weight:800; letter-spacing: 1px;">КЛИК: +1 | АВТО: 0/СЕК</div>
+        <div id="stats" style="color:var(--main-orange); font-weight:800; font-size:12px;">КЛИК: +1 | АВТО: 0/СЕК</div>
     </div>
 
     <div class="btn-box">
-        <button class="btn share-btn" onclick="shareResult()">📢</button>
-        <button class="btn" onclick="openShop()">🏢 ЗАВОДСКОЙ МАГАЗИН</button>
+        <button class="btn" style="flex:0.3; background:#222; color:#ff8c00;" onclick="share()">📢</button>
+        <button class="btn" onclick="openShop()">🏢 УЛУЧШИТЬ ЗАВОД</button>
     </div>
 
     <div id="shop-modal">
-        <h2 style="color: var(--main-orange); margin-top: 50px; letter-spacing: 3px;">UPGRADES</h2>
-        <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-            <button class="multiplier-btn active" id="m1" onclick="setMultiplier(1)">X1</button>
-            <button class="multiplier-btn" id="m10" onclick="setMultiplier(10)">X10</button>
-            <button class="multiplier-btn" id="mMax" onclick="setMultiplier('MAX')">MAX</button>
+        <h2 style="color:var(--main-orange)">ЦЕХ МОДЕРНИЗАЦИИ</h2>
+        <div class="multiplier-row">
+            <button class="m-btn active" id="m1" onclick="setM(1)">X1</button>
+            <button class="m-btn" id="m10" onclick="setM(10)">X10</button>
+            <button class="m-btn" id="mMax" onclick="setM('MAX')">MAX</button>
         </div>
         <div id="shop-list"></div>
-        <div style="padding: 40px; color: var(--main-orange); font-weight: 900; cursor: pointer; text-decoration: underline;" onclick="closeShop()">CLOSE</div>
+        <p onclick="closeShop()" style="color:var(--main-orange); margin-top:30px; font-weight:900;">← НАЗАД К ПЕЧИ</p>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        tg.headerColor = "#1a0f00";
 
         let score = parseFloat(localStorage.getItem('steel_score')) || 0;
         let clickPower = parseInt(localStorage.getItem('click_power')) || 1;
         let autoPower = parseInt(localStorage.getItem('auto_power')) || 0;
-        let buyMultiplier = 1;
+        let buyM = 1;
+
+        // Перегрев (Overdrive)
+        let clickTimes = [];
+        let isOverdrive = false;
+
+        // Квест
+        let dailyGoal = 5000;
+        let dailyCurrent = 0;
 
         const upgrades = [
-            { id: 'click', name: 'МОЛОТ V2', price: 50 },
-            { id: 'auto', name: 'ЦЕХ АВТОМАТИКИ', price: 200 },
-            { id: 'furnace', name: 'МАРТЕНОВСКАЯ ПЕЧЬ', price: 2000 },
-            { id: 'port', name: 'МОРСКОЙ ПОРТ', price: 10000 }
+            { id: 'click', name: 'МОЛОТ V2', price: 50, power: 1 },
+            { id: 'auto', name: 'АВТО-ЛИНИЯ', price: 200, power: 1 },
+            { id: 'furnace', name: 'ПЕЧЬ МАРТЕН', price: 2000, power: 10 },
+            { id: 'port', name: 'ПОРТ АЗОВА', price: 10000, power: 50 }
         ];
 
-        const ranks = [
-            { name: "Разнорабочий", goal: 500 },
-            { name: "Мастер смены", goal: 2000 },
-            { name: "Начальник цеха", goal: 10000 },
-            { name: "Директор завода", goal: 50000 },
-            { name: "Хозяин Азовстали", goal: 1000000 }
-        ];
-
-        function updateDisplay() {
+        function update() {
             document.getElementById('score').innerText = Math.floor(score).toLocaleString();
-            document.getElementById('stats').innerText = `КЛИК: +${clickPower} | АВТО: ${autoPower}/СЕК`;
+            document.getElementById('stats').innerText = `КЛИК: +${isOverdrive ? clickPower*2 : clickPower} | АВТО: ${autoPower}/СЕК`;
             
-            let currentRankIndex = ranks.findIndex(r => score < r.goal);
-            if (currentRankIndex === -1) currentRankIndex = ranks.length - 1;
-            let currentRank = ranks[currentRankIndex];
-            let prevGoal = ranks[currentRankIndex - 1]?.goal || 0;
-            let prog = ((score - prevGoal) / (currentRank.goal - prevGoal)) * 100;
-            document.getElementById('rank').innerText = currentRank.name;
+            // Ранги
+            const ranks = [500, 2000, 10000, 50000, 1000000];
+            const names = ["Разнорабочий", "Мастер", "Начальник", "Директор", "Владелец"];
+            let idx = ranks.findIndex(r => score < r);
+            if (idx === -1) idx = 4;
+            document.getElementById('rank').innerText = names[idx];
+            let prev = idx === 0 ? 0 : ranks[idx-1];
+            let prog = ((score - prev) / (ranks[idx] - prev)) * 100;
             document.getElementById('progressBar').style.width = Math.min(prog, 100) + "%";
 
-            if (document.getElementById('shop-modal').style.display === 'block') renderShop();
+            // Квест
+            document.getElementById('quest').innerText = `Квест: Накликать 5000 т. (${Math.floor(dailyCurrent)}/5000)`;
+            if (dailyCurrent >= dailyGoal) {
+                score += 1000;
+                dailyCurrent = 0;
+                tg.showAlert("Квест выполнен! Бонус +1000 тонн!");
+            }
 
             localStorage.setItem('steel_score', score);
             localStorage.setItem('click_power', clickPower);
             localStorage.setItem('auto_power', autoPower);
         }
 
-        function setMultiplier(m) {
-            buyMultiplier = m;
-            document.querySelectorAll('.multiplier-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('m' + (m === 'MAX' ? 'Max' : m)).classList.add('active');
-            renderShop();
+        // Клик
+        document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
+            const now = Date.now();
+            clickTimes.push(now);
+            clickTimes = clickTimes.filter(t => now - t < 1000);
+
+            // Активация перегрева (больше 6 кликов в сек)
+            if (clickTimes.length > 6) {
+                if (!isOverdrive) {
+                    isOverdrive = true;
+                    document.getElementById('clickBtn').classList.add('overdrive');
+                }
+            } else {
+                isOverdrive = false;
+                document.getElementById('clickBtn').classList.remove('overdrive');
+            }
+
+            let gain = isOverdrive ? clickPower * 2 : clickPower;
+            score += gain;
+            dailyCurrent += gain;
+
+            // Эффект
+            const ft = document.createElement('div');
+            ft.className = 'floating-text';
+            ft.innerText = `+${gain}`;
+            ft.style.color = isOverdrive ? 'var(--heat-blue)' : 'var(--main-orange)';
+            ft.style.left = e.touches[0].clientX + 'px';
+            ft.style.top = e.touches[0].clientY + 'px';
+            document.body.appendChild(ft);
+            setTimeout(() => ft.remove(), 800);
+
+            tg.HapticFeedback.impactOccurred(isOverdrive ? 'heavy' : 'medium');
+            update();
+        });
+
+        // Азартная игра
+        function gamble() {
+            let bet = score * 0.1;
+            if (score < 100) return tg.showAlert("Слишком мало стали для риска!");
+            
+            tg.showConfirm("Рискнуть " + Math.floor(bet) + " т. стали? (Шанс 40% на x3)", (ok) => {
+                if (ok) {
+                    if (Math.random() < 0.4) {
+                        score += bet * 2;
+                        tg.HapticFeedback.notificationOccurred('success');
+                        tg.showAlert("ПОБЕДА! + " + Math.floor(bet*3) + " тонн!");
+                    } else {
+                        score -= bet;
+                        tg.HapticFeedback.notificationOccurred('error');
+                        tg.showAlert("ПРОИГРЫШ. Печь остыла...");
+                    }
+                    update();
+                }
+            });
         }
+
+        // Магазин
+        function setM(m) { buyM = m; renderShop(); }
+        function openShop() { document.getElementById('shop-modal').style.display='block'; renderShop(); }
+        function closeShop() { document.getElementById('shop-modal').style.display='none'; }
 
         function renderShop() {
             const list = document.getElementById('shop-list');
             list.innerHTML = '';
             upgrades.forEach(up => {
-                let count = buyMultiplier === 'MAX' ? Math.max(1, Math.floor(score / up.price)) : buyMultiplier;
-                let totalPrice = up.price * count;
-                list.innerHTML += `
-                    <div class="shop-item">
-                        <div style="text-align:left"><b>${up.name}</b><br><small style="color:#aaa">КУПИТЬ: ${count} ШТ.</small></div>
-                        <button class="buy-btn" ${score >= totalPrice ? '' : 'disabled'} onclick="buyUpgrade('${up.id}', ${count}, ${totalPrice})">
-                            ${totalPrice.toLocaleString()} Т.
-                        </button>
-                    </div>`;
+                let count = buyM === 'MAX' ? Math.max(1, Math.floor(score / up.price)) : buyM;
+                let cost = up.price * count;
+                list.innerHTML += `<div class="shop-item">
+                    <div style="text-align:left"><b>${up.name}</b><br><small>+${up.power * count} к добыче</small></div>
+                    <button class="m-btn" ${score < cost ? 'disabled' : ''} onclick="buy('${up.id}', ${count}, ${cost})">${cost} Т.</button>
+                </div>`;
             });
         }
 
-        function buyUpgrade(id, count, price) {
-            if (score >= price) {
-                score -= price;
+        function buy(id, count, cost) {
+            if (score >= cost) {
+                score -= cost;
+                let up = upgrades.find(u => u.id === id);
                 if (id === 'click') clickPower += count;
-                else autoPower += (id === 'auto' ? 1 : id === 'furnace' ? 10 : 50) * count;
+                else autoPower += up.power * count;
                 tg.HapticFeedback.notificationOccurred('success');
-                updateDisplay();
+                update();
+                renderShop();
             }
         }
 
-        document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
-            score += clickPower;
-            const ft = document.createElement('div');
-            ft.className = 'floating-text';
-            ft.innerText = `+${clickPower}`;
-            ft.style.left = e.touches[0].clientX - 20 + 'px';
-            ft.style.top = e.touches[0].clientY - 40 + 'px';
-            document.body.appendChild(ft);
-            setTimeout(() => ft.remove(), 1000);
-            updateDisplay();
-            tg.HapticFeedback.impactOccurred('heavy');
-        });
+        // Авто-добыча
+        setInterval(() => { if (autoPower > 0) { score += autoPower; update(); } }, 1000);
 
-        function createParticles() {
-            const container = document.getElementById('particles-container');
-            for (let i = 0; i < 15; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.width = Math.random() * 4 + 2 + 'px'; p.style.height = p.style.width;
-                p.style.left = Math.random() * 100 + 'vw';
-                p.style.animationDelay = Math.random() * 4 + 's';
-                container.appendChild(p);
-            }
+        // Старт
+        update();
+        for(let i=0; i<15; i++) {
+            let p = document.createElement('div'); p.className='particle';
+            p.style.left=Math.random()*100+'vw'; p.style.width=Math.random()*3+'px';
+            p.style.height=p.style.width; p.style.animationDelay=Math.random()*4+'s';
+            document.getElementById('particles-container').appendChild(p);
         }
 
-        setInterval(() => { if (autoPower > 0) { score += autoPower; updateDisplay(); } }, 1000);
-        function openShop() { document.getElementById('shop-modal').style.display = 'block'; renderShop(); }
-        function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
-        
         try {
             const u = tg.initDataUnsafe?.user;
             if (u) {
                 document.getElementById('user-name').innerText = (u.first_name || u.username).toUpperCase();
-                if (u.photo_url) { const img = document.getElementById('user-photo'); img.src = u.photo_url; img.style.display = 'block'; }
             }
-        } catch (e) {}
-
-        createParticles();
-        updateDisplay();
+        } catch(e) {}
     </script>
 </body>
 </html>
