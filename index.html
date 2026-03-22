@@ -6,144 +6,167 @@
     <title>Steel Empire: Azov Forge</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-orange: #ff8c00; --energy-blue: #00f2ff; }
+        :root { --main-orange: #ff8c00; --energy-blue: #00f2ff; --bg-dark: #0a0a0a; }
         
         body { 
-            background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; 
-            margin: 0; padding: 0; transition: background 1s ease;
-            display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+            background: var(--bg-dark); color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+            transition: background 0.8s ease;
         }
 
-        /* Динамические фоны для уровней завода */
-        .bg-level-0 { background: radial-gradient(circle, #1a0f00 0%, #000 100%); }
-        .bg-level-1 { background: linear-gradient(180deg, #2b1b00 0%, #000 100%); }
-        .bg-level-2 { background: radial-gradient(circle at top, #3d2600 0%, #000 100%); }
-        .bg-level-3 { background: inner-shadow, url('https://w.wallhaven.cc/full/ox/wallhaven-oxp3p9.jpg') center/cover; } /* Пример */
+        /* Фоновые градиенты для разных уровней */
+        .bg-level-0 { background: radial-gradient(circle at center, #1a0f00 0%, #000 100%); }
+        .bg-level-1 { background: radial-gradient(circle at center, #2b1b00 0%, #0a0a0a 100%); }
+        .bg-level-2 { background: radial-gradient(circle at center, #3d2600 0%, #050505 100%); }
+        .bg-level-3 { background: radial-gradient(circle at center, #4d3100 0%, #000 100%); }
 
-        #particles-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .particle { position: absolute; background: var(--main-orange); border-radius: 50%; animation: particleFall 4s linear infinite; opacity: 0.3; }
-        @keyframes particleFall { 0% { transform: translateY(-10px); opacity: 0; } 100% { transform: translateY(100vh); opacity: 0; } }
+        .header { 
+            padding: 15px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.2); text-align: center; z-index: 10;
+        }
+        #user-name { font-weight: 800; color: var(--main-orange); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
 
-        .user-header { display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); border-bottom: 1px solid rgba(255,140,0,0.2); z-index: 10; }
-        #user-name { font-weight: 800; color: var(--main-orange); font-size: 12px; text-transform: uppercase; }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5; }
 
-        .main-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5; }
-        
         /* Энергия */
-        .energy-box { margin-bottom: 10px; z-index: 10; }
-        .energy-text { font-size: 14px; font-weight: bold; color: var(--energy-blue); text-shadow: 0 0 10px var(--energy-blue); }
-        .energy-container { width: 180px; height: 6px; background: #111; border-radius: 10px; border: 1px solid #00f2ff55; overflow: hidden; }
-        .energy-bar { height: 100%; background: var(--energy-blue); width: 100%; transition: width 0.2s; box-shadow: 0 0 10px var(--energy-blue); }
+        .energy-section { margin-bottom: 20px; text-align: center; }
+        .energy-info { font-size: 14px; font-weight: 900; color: var(--energy-blue); margin-bottom: 5px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+        .energy-container { width: 200px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(0, 242, 255, 0.3); }
+        .energy-fill { height: 100%; background: var(--energy-blue); width: 100%; transition: width 0.3s ease; box-shadow: 0 0 15px var(--energy-blue); }
 
-        .rank-name { color: var(--main-orange); font-weight: 900; font-size: 18px; text-transform: uppercase; margin-top: 15px; }
-        .progress-container { width: 220px; height: 4px; background: #222; border-radius: 10px; margin: 5px 0 20px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--main-orange); width: 0%; transition: width 0.4s; }
+        /* Ранг */
+        #rank { font-weight: 900; color: var(--main-orange); font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .rank-progress { width: 220px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 8px 0 25px; overflow: hidden; }
+        .rank-fill { height: 100%; background: var(--main-orange); width: 0%; transition: width 0.5s; }
 
-        .score-box { background: rgba(0,0,0,0.6); border: 1px solid var(--main-orange); border-radius: 20px; padding: 15px 45px; }
-        .score { font-size: 46px; font-weight: 900; color: var(--main-orange); }
+        /* Счёт */
+        .score-card { 
+            background: rgba(255, 140, 0, 0.05); border: 1px solid rgba(255, 140, 0, 0.3);
+            border-radius: 24px; padding: 20px 50px; backdrop-filter: blur(5px); text-align: center;
+        }
+        .score-val { font-size: 48px; font-weight: 900; color: var(--main-orange); line-height: 1; }
+        .score-label { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 700; margin-top: 5px; letter-spacing: 2px; }
 
-        .click-area { font-size: 130px; cursor: pointer; transition: 0.1s; margin: 20px 0; filter: drop-shadow(0 0 10px rgba(255,140,0,0.2)); }
-        .click-area:active { transform: scale(0.9); }
-        .click-area.no-energy { filter: grayscale(1) opacity(0.5); cursor: not-allowed; }
+        /* Кликабельный Якорь */
+        #clickBtn { 
+            font-size: 120px; cursor: pointer; user-select: none; margin: 30px 0;
+            transition: transform 0.05s; filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.2));
+            display: flex; align-items: center; justify-content: center;
+        }
+        #clickBtn:active { transform: scale(0.92); filter: drop-shadow(0 0 40px var(--main-orange)); }
+        #clickBtn.low-energy { opacity: 0.4; filter: grayscale(1); }
 
-        .btn-box { padding: 20px; display: flex; gap: 10px; z-index: 20; background: rgba(0,0,0,0.8); }
-        .btn { flex: 1; background: var(--main-orange); color: #000; border: none; padding: 16px; border-radius: 15px; font-weight: 900; text-transform: uppercase; }
+        .stats-text { font-size: 13px; font-weight: 800; color: var(--main-orange); letter-spacing: 1px; }
 
-        #shop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; padding-top: 40px; }
-        .shop-item { background: #111; margin: 10px 20px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
-        .m-btn { background: #222; color: var(--main-orange); border: 1px solid #444; padding: 10px; border-radius: 10px; margin: 5px; }
-        .m-btn.active { background: var(--main-orange); color: #000; }
+        /* Кнопка Магазина */
+        .footer { padding: 20px; z-index: 10; }
+        .shop-trigger { 
+            width: 100%; background: var(--main-orange); color: #000; border: none; 
+            padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; 
+            text-transform: uppercase; box-shadow: 0 5px 20px rgba(255, 140, 0, 0.3);
+        }
+
+        /* Модалка Магазина */
+        #shopModal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.98); z-index: 1000; overflow-y: auto; padding-top: 50px;
+        }
+        .shop-item { 
+            background: rgba(255,255,255,0.03); margin: 12px 20px; padding: 20px; 
+            border-radius: 20px; display: flex; justify-content: space-between; align-items: center;
+            border-left: 4px solid var(--main-orange);
+        }
+        .buy-btn { background: var(--main-orange); border: none; padding: 12px 18px; border-radius: 12px; font-weight: 900; color: #000; }
+        .buy-btn:disabled { background: #333; color: #666; }
+
+        .floating-text { position: absolute; color: #fff; font-weight: 900; pointer-events: none; animation: floatUp 0.7s forwards; }
+        @keyframes floatUp { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-80px) scale(1.5); } }
     </style>
 </head>
-<body class="bg-level-0" id="game-body">
-    <div id="particles-container"></div>
-    
-    <div class="user-header"><div id="user-name">ГЕНЕРАЛЬНЫЙ ДИРЕКТОР</div></div>
+<body class="bg-level-0" id="mainBody">
 
-    <div class="main-screen">
-        <div class="energy-box">
-            <div class="energy-text">⚡ <span id="energy-val">1000</span> / 1000</div>
-            <div class="energy-container"><div class="energy-bar" id="energyBar"></div></div>
-        </div>
-
-        <div class="rank-name" id="rank">Разнорабочий</div>
-        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
-
-        <div class="score-box">
-            <div class="score" id="score">0</div>
-            <div style="font-size: 10px; opacity: 0.6; letter-spacing: 2px;">TONS OF STEEL</div>
-        </div>
-
-        <div class="click-area" id="clickBtn">⚓</div>
-        <div id="stats" style="color:var(--main-orange); font-weight:800; font-size:12px;">КЛИК: +1 | АВТО: 0/СЕК</div>
+    <div class="header">
+        <div id="user-name">ЗАГРУЗКА ДАННЫХ...</div>
     </div>
 
-    <div class="btn-box">
-        <button class="btn" onclick="openShop()">🏢 МАГАЗИН И УРОВНИ</button>
+    <div class="main-content">
+        <div class="energy-section">
+            <div class="energy-info">⚡ <span id="e-val">1000</span> / 1000</div>
+            <div class="energy-container"><div class="energy-fill" id="e-bar"></div></div>
+        </div>
+
+        <div id="rank">РАЗНОРАБОЧИЙ</div>
+        <div class="rank-progress"><div class="rank-fill" id="r-bar"></div></div>
+
+        <div class="score-card">
+            <div class="score-val" id="score">0</div>
+            <div class="score-label">TONS OF STEEL</div>
+        </div>
+
+        <div id="clickBtn">⚓</div>
+
+        <div class="stats-text" id="stats">КЛИК: +1 | АВТО: 0/СЕК</div>
     </div>
 
-    <div id="shop-modal">
-        <h2 style="color:var(--main-orange)">МОДЕРНИЗАЦИЯ КУЗНИЦЫ</h2>
-        <div style="margin-bottom: 20px;">
-            <button class="m-btn active" id="m1" onclick="setM(1)">X1</button>
-            <button class="m-btn" id="m10" onclick="setM(10)">X10</button>
-            <button class="m-btn" id="mMax" onclick="setM('MAX')">MAX</button>
-        </div>
+    <div class="footer">
+        <button class="shop-trigger" onclick="toggleShop(true)">🏢 МАГАЗИН И УРОВНИ</button>
+    </div>
+
+    <div id="shopModal">
+        <h2 style="color: var(--main-orange); text-align: center;">ОТДЕЛ СНАБЖЕНИЯ</h2>
         <div id="shop-list"></div>
-        <p onclick="closeShop()" style="color:var(--main-orange); margin-top:30px; font-weight:900; cursor:pointer;">← ВЕРНУТЬСЯ К РАБОТЕ</p>
+        <div style="text-align: center; padding: 40px; color: var(--main-orange); font-weight: 900; cursor: pointer;" onclick="toggleShop(false)">← ВЕРНУТЬСЯ В ЦЕХ</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Состояние игры
         let score = parseFloat(localStorage.getItem('steel_score')) || 0;
         let clickPower = parseInt(localStorage.getItem('click_power')) || 1;
         let autoPower = parseInt(localStorage.getItem('auto_power')) || 0;
         let energy = parseFloat(localStorage.getItem('steel_energy')) || 1000;
-        let owned = JSON.parse(localStorage.getItem('steel_owned')) || { click: 0, auto: 0, furnace: 0, port: 0 };
+        let owned = JSON.parse(localStorage.getItem('steel_owned')) || { hammer: 0, line: 0, furnace: 0, port: 0 };
         
-        let maxEnergy = 1000;
-        let buyM = 1;
-
+        const maxEnergy = 1000;
         const upgrades = [
-            { id: 'click', name: 'МОЛОТ V2', basePrice: 50, power: 1 },
-            { id: 'auto', name: 'АВТО-ЛИНИЯ', basePrice: 200, power: 1 },
-            { id: 'furnace', name: 'ПЕЧЬ МАРТЕН', basePrice: 2000, power: 10 },
-            { id: 'port', name: 'ПОРТ АЗОВА', basePrice: 10000, power: 50 }
+            { id: 'hammer', name: 'ТЯЖЕЛЫЙ МОЛОТ', base: 50, pwr: 1 },
+            { id: 'line', name: 'КОНВЕЙЕР', base: 250, pwr: 1 },
+            { id: 'furnace', name: 'ПЕЧЬ МАРТЕН', base: 2000, pwr: 10 },
+            { id: 'port', name: 'ГРУЗОВОЙ ПОРТ', base: 12000, pwr: 60 }
         ];
 
-        function getPrice(id, count) {
+        function getPrice(id) {
             let up = upgrades.find(u => u.id === id);
-            let total = 0;
-            for(let i=0; i<count; i++) total += up.basePrice * Math.pow(1.15, owned[id] + i);
-            return Math.floor(total);
+            return Math.floor(up.base * Math.pow(1.18, owned[id]));
         }
 
-        function update() {
+        function updateUI() {
             document.getElementById('score').innerText = Math.floor(score).toLocaleString();
-            document.getElementById('energy-val').innerText = Math.floor(energy);
-            document.getElementById('energyBar').style.width = (energy / maxEnergy * 100) + "%";
+            document.getElementById('e-val').innerText = Math.floor(energy);
+            document.getElementById('e-bar').style.width = (energy / maxEnergy * 100) + "%";
             document.getElementById('stats').innerText = `КЛИК: +${clickPower} | АВТО: ${autoPower}/СЕК`;
 
+            // Логика рангов и фонов
             const ranks = [
-                { name: "Разнорабочий", goal: 1000, class: "bg-level-0" },
-                { name: "Мастер", goal: 10000, class: "bg-level-1" },
-                { name: "Управляющий", goal: 100000, class: "bg-level-2" },
-                { name: "Гендиректор", goal: 1000000, class: "bg-level-3" },
-                { name: "Стальной Монарх", goal: 999999999, class: "bg-level-3" }
+                { n: "РАЗНОРАБОЧИЙ", g: 1500, c: "bg-level-0" },
+                { n: "МАСТЕР ЦЕХА", g: 15000, c: "bg-level-1" },
+                { n: "УПРАВЛЯЮЩИЙ", g: 150000, c: "bg-level-2" },
+                { n: "ГЕНДИРЕКТОР", g: 1000000, c: "bg-level-3" },
+                { n: "СТАЛЬНОЙ МОНАРХ", g: Infinity, c: "bg-level-3" }
             ];
 
-            let idx = ranks.findIndex(r => score < r.goal);
-            if(idx === -1) idx = ranks.length - 1;
-            
-            let cur = ranks[idx];
-            document.getElementById('rank').innerText = cur.name;
-            document.body.className = cur.class;
+            let rIdx = ranks.findIndex(r => score < r.g);
+            let currentRank = ranks[rIdx];
+            document.getElementById('rank').innerText = currentRank.n;
+            document.getElementById('mainBody').className = currentRank.c;
 
-            let prev = idx === 0 ? 0 : ranks[idx-1].goal;
-            document.getElementById('progressBar').style.width = Math.min(((score - prev) / (cur.goal - prev)) * 100, 100) + "%";
+            let prevGoal = rIdx === 0 ? 0 : ranks[rIdx-1].g;
+            let prog = ((score - prevGoal) / (currentRank.g - prevGoal)) * 100;
+            document.getElementById('r-bar').style.width = Math.min(prog, 100) + "%";
 
+            // Сохранение
             localStorage.setItem('steel_score', score);
             localStorage.setItem('steel_energy', energy);
             localStorage.setItem('steel_owned', JSON.stringify(owned));
@@ -151,77 +174,79 @@
             localStorage.setItem('auto_power', autoPower);
         }
 
-        // Клик с расходом энергии
         document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
             if (energy >= 1) {
                 energy -= 1;
                 score += clickPower;
+                
+                // Эффект вылетающих цифр
+                const ft = document.createElement('div');
+                ft.className = 'floating-text';
+                ft.innerText = `+${clickPower}`;
+                ft.style.left = e.touches[0].clientX + 'px';
+                ft.style.top = e.touches[0].clientY + 'px';
+                document.body.appendChild(ft);
+                setTimeout(() => ft.remove(), 700);
+
                 tg.HapticFeedback.impactOccurred('medium');
-                update();
+                updateUI();
             } else {
-                document.getElementById('clickBtn').classList.add('no-energy');
-                setTimeout(() => document.getElementById('clickBtn').classList.remove('no-energy'), 200);
                 tg.HapticFeedback.notificationOccurred('error');
             }
         });
 
-        // Регенерация энергии (1 в секунду)
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 1);
-                update();
-            }
-            if (autoPower > 0) {
-                score += autoPower;
-                update();
-            }
-        }, 1000);
-
-        function openShop() { document.getElementById('shop-modal').style.display='block'; renderShop(); }
-        function closeShop() { document.getElementById('shop-modal').style.display='none'; }
-        function setM(m) { buyM = m; renderShop(); }
+        function toggleShop(show) {
+            document.getElementById('shopModal').style.display = show ? 'block' : 'none';
+            if(show) renderShop();
+        }
 
         function renderShop() {
-            const list = document.getElementById('shop-list');
-            list.innerHTML = '';
+            const container = document.getElementById('shop-list');
+            container.innerHTML = '';
             upgrades.forEach(up => {
-                let count = buyM;
-                if(buyM === 'MAX') {
-                    count = 0; let tempScore = score;
-                    while(tempScore >= getPrice(up.id, 1 + count)) {
-                        tempScore -= getPrice(up.id, 1 + count);
-                        count++;
-                    }
-                    if(count === 0) count = 1;
-                }
-                let cost = getPrice(up.id, count);
-                list.innerHTML += `<div class="shop-item">
-                    <div style="text-align:left"><b>${up.name}</b> (ур. ${owned[up.id]})</div>
-                    <button class="m-btn" ${score < cost ? 'disabled' : ''} onclick="buy('${up.id}', ${count}, ${cost})">${cost.toLocaleString()} Т.</button>
-                </div>`;
+                let price = getPrice(up.id);
+                container.innerHTML += `
+                    <div class="shop-item">
+                        <div>
+                            <div style="font-weight:900">${up.name}</div>
+                            <div style="font-size:10px; color:rgba(255,255,255,0.5)">УРОВЕНЬ: ${owned[up.id]}</div>
+                        </div>
+                        <button class="buy-btn" ${score < price ? 'disabled' : ''} onclick="buy('${up.id}')">
+                            ${price.toLocaleString()} Т.
+                        </button>
+                    </div>
+                `;
             });
         }
 
-        function buy(id, count, cost) {
-            if (score >= cost) {
-                score -= cost;
-                owned[id] += count;
+        function buy(id) {
+            let price = getPrice(id);
+            if (score >= price) {
+                score -= price;
+                owned[id]++;
                 let up = upgrades.find(u => u.id === id);
-                if (id === 'click') clickPower += (up.power * count);
-                else autoPower += (up.power * count);
+                if (id === 'hammer') clickPower += up.pwr;
+                else autoPower += up.pwr;
                 tg.HapticFeedback.notificationOccurred('success');
-                update();
+                updateUI();
                 renderShop();
             }
         }
 
-        update();
-        // Частицы
-        for(let i=0; i<15; i++){
-            let p = document.createElement('div'); p.className='particle';
-            p.style.left=Math.random()*100+'vw'; p.style.animationDelay=Math.random()*4+'s';
-            document.getElementById('particles-container').appendChild(p);
-        }
+        // Цикл регенерации и автодобычи
+        setInterval(() => {
+            if (energy < maxEnergy) energy = Math.min(maxEnergy, energy + 1.5);
+            if (autoPower > 0) score += (autoPower / 10); // Плавная добыча раз в 100мс
+            updateUI();
+        }, 100);
+
+        // Инициализация
+        try {
+            const user = tg.initDataUnsafe?.user;
+            if (user) document.getElementById('user-name').innerText = (user.first_name || user.username).toUpperCase();
+        } catch(e) {}
+        
+        updateUI();
     </script>
 </body>
 </html>
